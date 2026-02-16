@@ -1,0 +1,121 @@
+// Database Schema for Multi-Agent Dropshipping System
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// ==================== AGENTS TABLE ====================
+model Agent {
+  id              String   @id @default(cuid())
+  name            String
+  role            String
+  emoji           String   @default("🤖")
+  status          String   @default("idle") // idle, running, error
+  systemPrompt    String?
+  skills          String   // JSON array
+  authorities     String   // JSON array
+  modelPrimary    String   @default("minimax-portal/MiniMax-M2.5")
+  modelFallback   String?
+  totalTasks      Int      @default(0)
+  totalCalls      Int      @default(0)
+  totalTokens     Int      @default(0)
+  errorCount      Int      @default(0)
+  storageSize     Float    @default(0)
+  lastActive      DateTime?
+  disabled        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  tasks           Task[]
+  communications  Communication[] @relation("FromAgent")
+  receivedComms   Communication[] @relation("ToAgent")
+  modelUsages     ModelUsage[]
+  memoryLogs      MemoryLog[]
+}
+
+// ==================== TASKS TABLE ====================
+model Task {
+  id            String   @id @default(cuid())
+  agentId       String
+  agent         Agent    @relation(fields: [agentId], references: [id])
+  type          String   // trends, supplier_intel, risk_model, validator, verification, listing, content, performance
+  status        String   @default("pending") // pending, running, completed, failed
+  productId     String?
+  inputSummary  String?
+  outputSummary String?
+  stage         String   @default("pending") // trends → supplier_intel → risk_model → validator → verification → listing → content → performance
+  stageResult   String?  // pass, fail, pending
+  startedAt     DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  communications Communication[]
+}
+
+// ==================== COMMUNICATIONS TABLE ====================
+model Communication {
+  id          String   @id @default(cuid())
+  fromAgentId String
+  fromAgent   Agent    @relation("FromAgent", fields: [fromAgentId], references: [id])
+  toAgentId   String
+  toAgent     Agent    @relation("ToAgent", fields: [toAgentId], references: [id])
+  message     String
+  taskId      String?
+  task        Task?    @relation(fields: [taskId], references: [id])
+  status      String   @default("sent") // sent, delivered, failed
+  timestamp   DateTime @default(now())
+}
+
+// ==================== MODEL USAGE TABLE ====================
+model ModelUsage {
+  id            String   @id @default(cuid())
+  agentId       String
+  agent         Agent    @relation(fields: [agentId], references: [id])
+  modelName     String
+  tokensUsed    Int      @default(0)
+  latency       Float    @default(0) // ms
+  fallbackUsed  Boolean  @default(false)
+  success       Boolean  @default(true)
+  errorMessage  String?
+  timestamp     DateTime @default(now())
+}
+
+// ==================== MEMORY LOGS TABLE ====================
+model MemoryLog {
+  id          String   @id @default(cuid())
+  agentId     String
+  agent       Agent    @relation(fields: [agentId], references: [id])
+  entryType   String   // info, warning, error, decision, memory
+  summary     String
+  details     String?
+  timestamp   DateTime @default(now())
+}
+
+// ==================== SYSTEM HEALTH TABLE ====================
+model SystemHealth {
+  id          String   @id @default(cuid())
+  metric      String   // gateway_status, model_availability, api_health, active_sessions
+  status      String   // healthy, degraded, down
+  details     String?
+  lastChecked DateTime @default(now())
+}
+
+// ==================== PRODUCT WORKFLOWS TABLE ====================
+model ProductWorkflow {
+  id            String   @id @default(cuid())
+  productId     String   @unique
+  productName   String
+  currentStage  String   @default("trends")
+  stageResults  String   // JSON: { trends: "pass", supplier_intel: "fail", ... }
+  bottleneck    String?
+  experimentId  String?
+  status        String   @default("active") // active, completed, failed
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
