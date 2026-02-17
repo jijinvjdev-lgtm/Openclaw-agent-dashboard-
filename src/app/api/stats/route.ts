@@ -4,6 +4,9 @@ import prisma from '@/lib/db';
 // GET /api/stats - Get dashboard statistics
 export async function GET() {
   try {
+    // Test connection first
+    await prisma.$connect();
+    
     const [
       totalAgents,
       activeAgents,
@@ -42,7 +45,6 @@ export async function GET() {
     const totalModelCalls = modelUsages.length;
     const fallbackCount = modelUsages.filter((u) => u.fallbackUsed).length;
     const fallbackRate = totalModelCalls > 0 ? (fallbackCount / totalModelCalls) * 100 : 0;
-    const successfulCalls = modelUsages.filter((u) => u.success).length;
     const averageLatency = modelUsages.length > 0
       ? modelUsages.reduce((sum, u) => sum + u.latency, 0) / modelUsages.length
       : 0;
@@ -71,6 +73,12 @@ export async function GET() {
     });
   } catch (error) {
     console.error('[API] GET /stats error:', error);
-    return NextResponse.json({ error: 'Failed to fetch stats' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ 
+      error: 'Database connection failed',
+      details: message 
+    }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }

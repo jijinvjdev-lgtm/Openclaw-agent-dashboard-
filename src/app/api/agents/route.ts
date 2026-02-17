@@ -4,6 +4,8 @@ import prisma from '@/lib/db';
 // GET /api/agents - List all agents
 export async function GET() {
   try {
+    await prisma.$connect();
+    
     const agents = await prisma.agent.findMany({
       include: {
         tasks: {
@@ -25,13 +27,21 @@ export async function GET() {
     return NextResponse.json(agents);
   } catch (error) {
     console.error('[API] GET /agents error:', error);
-    return NextResponse.json({ error: 'Failed to fetch agents' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ 
+      error: 'Database connection failed',
+      details: message 
+    }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
 
 // POST /api/agents - Create new agent
 export async function POST(request: Request) {
   try {
+    await prisma.$connect();
+    
     const body = await request.json();
     
     const agent = await prisma.agent.create({
@@ -51,6 +61,12 @@ export async function POST(request: Request) {
     return NextResponse.json(agent, { status: 201 });
   } catch (error) {
     console.error('[API] POST /agents error:', error);
-    return NextResponse.json({ error: 'Failed to create agent' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Unknown error';
+    return NextResponse.json({ 
+      error: 'Database connection failed',
+      details: message 
+    }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
