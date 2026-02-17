@@ -192,7 +192,7 @@ export function AgentProfile({ agentId, onBack }: AgentProfileProps) {
             <div className="p-4 rounded-xl border border-gray-800 bg-gray-900/50">
               <h3 className="font-medium text-white mb-3">Skills</h3>
               <div className="flex flex-wrap gap-2">
-                {skills.map((skill: string, i) => (
+                {skills.map((skill: string, i: number) => (
                   <span key={i} className="px-2 py-1 rounded-md bg-violet-600/20 text-violet-300 text-xs">
                     {skill}
                   </span>
@@ -203,7 +203,7 @@ export function AgentProfile({ agentId, onBack }: AgentProfileProps) {
             <div className="p-4 rounded-xl border border-gray-800 bg-gray-900/50">
               <h3 className="font-medium text-white mb-3">Authorities</h3>
               <div className="flex flex-wrap gap-2">
-                {authorities.map((auth: string, i) => (
+                {authorities.map((auth: string, i: number) => (
                   <span key={i} className="px-2 py-1 rounded-md bg-cyan-600/20 text-cyan-300 text-xs">
                     {auth}
                   </span>
