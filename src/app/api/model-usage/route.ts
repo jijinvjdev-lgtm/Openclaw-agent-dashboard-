@@ -46,11 +46,67 @@ export async function GET(request: Request) {
   }
 }
 
-// POST /api/model-usage - Log model usage
+// POST /api/model-usage - Log model usage or seed data
 export async function POST(request: Request) {
   try {
     const body = await request.json();
     
+    // Check if this is a seed request
+    if (body.action === 'seed') {
+      const count = body.count || 10;
+      
+      // Get all agents
+      const agents = await prisma.agent.findMany({ take: 10 });
+      
+      const models = [
+        'minimax-portal/MiniMax-M2.5',
+        'minimax-portal/MiniMax-M2.1',
+        'claude-opus-4-20251114',
+        'gpt-4o',
+      ];
+      
+      const usageRecords = [];
+      
+      for (let i = 0; i < Math.min(count, 50); i++) {
+        const agent = agents[i % agents.length];
+        const model = models[Math.floor(Math.random() * models.length)];
+        const tokensUsed = Math.floor(Math.random() * 5000) + 500;
+        const latency = Math.floor(Math.random() * 3000) + 200;
+        const success = Math.random() > 0.1;
+        
+        const usage = await prisma.modelUsage.create({
+          data: {
+            agentId: agent.id,
+            modelName: model,
+            tokensUsed,
+            latency,
+            fallbackUsed: Math.random() > 0.8,
+            success,
+            errorMessage: success ? null : 'Sample error',
+          },
+        });
+        
+        usageRecords.push(usage);
+        
+        // Update agent stats
+        await prisma.agent.update({
+          where: { id: agent.id },
+          data: {
+            totalCalls: { increment: 1 },
+            totalTokens: { increment: tokensUsed },
+            errorCount: success ? undefined : { increment: 1 },
+            lastActive: new Date(),
+          },
+        });
+      }
+      
+      return NextResponse.json({ 
+        message: `Created ${usageRecords.length} sample model usage records`,
+        count: usageRecords.length 
+      });
+    }
+    
+    // Normal model usage logging
     const usage = await prisma.modelUsage.create({
       data: {
         agentId: body.agentId,
@@ -78,68 +134,5 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('[API] POST /model-usage error:', error);
     return NextResponse.json({ error: 'Failed to log model usage' }, { status: 500 });
-  }
-}
-
-// POST /api/model-usage/seed - Seed sample data for testing
-export async function PUT(request: Request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const count = parseInt(searchParams.get('count') || '10');
-    
-    // Get all agents
-    const agents = await prisma.agent.findMany({ take: 10 });
-    
-    const models = [
-      'minimax-portal/MiniMax-M2.5',
-      'minimax-portal/MiniMax-M2.1',
-      'claude-opus-4-20251114',
-      'gpt-4o',
-    ];
-    
-    const types = ['market-research', 'idea-validation', 'development', 'qa-testing', 'monitoring'];
-    
-    const usageRecords = [];
-    
-    for (let i = 0; i < Math.min(count, 50); i++) {
-      const agent = agents[i % agents.length];
-      const model = models[Math.floor(Math.random() * models.length)];
-      const tokensUsed = Math.floor(Math.random() * 5000) + 500;
-      const latency = Math.floor(Math.random() * 3000) + 200;
-      const success = Math.random() > 0.1;
-      
-      const usage = await prisma.modelUsage.create({
-        data: {
-          agentId: agent.id,
-          modelName: model,
-          tokensUsed,
-          latency,
-          fallbackUsed: Math.random() > 0.8,
-          success,
-          errorMessage: success ? null : 'Sample error',
-        },
-      });
-      
-      usageRecords.push(usage);
-      
-      // Update agent stats
-      await prisma.agent.update({
-        where: { id: agent.id },
-        data: {
-          totalCalls: { increment: 1 },
-          totalTokens: { increment: tokensUsed },
-          errorCount: success ? undefined : { increment: 1 },
-          lastActive: new Date(),
-        },
-      });
-    }
-    
-    return NextResponse.json({ 
-      message: `Created ${usageRecords.length} sample model usage records`,
-      count: usageRecords.length 
-    });
-  } catch (error) {
-    console.error('[API] PUT /model-usage/seed error:', error);
-    return NextResponse.json({ error: 'Failed to seed model usage' }, { status: 500 });
   }
 }
