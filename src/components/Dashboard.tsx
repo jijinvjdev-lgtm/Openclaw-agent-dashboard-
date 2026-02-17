@@ -11,24 +11,16 @@ import { StoragePanel } from '@/components/StoragePanel';
 import { SystemHealth } from '@/components/SystemHealth';
 import { StatsBar } from '@/components/StatsBar';
 import { Sidebar } from '@/components/Sidebar';
-import { 
-  LayoutDashboard, 
-  Users, 
-  GitBranch, 
-  MessageSquare, 
-  Brain, 
-  HardDrive, 
-  Activity 
-} from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 
 const tabs = [
-  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
-  { id: 'agents', label: 'Agents', icon: Users },
-  { id: 'workflows', label: 'Task Flows', icon: GitBranch },
-  { id: 'communications', label: 'Communications', icon: MessageSquare },
-  { id: 'models', label: 'Model Analytics', icon: Brain },
-  { id: 'storage', label: 'Storage', icon: HardDrive },
-  { id: 'health', label: 'System Health', icon: Activity },
+  { id: 'overview', label: 'Overview', icon: 'LayoutDashboard' },
+  { id: 'agents', label: 'Agents', icon: 'Users' },
+  { id: 'workflows', label: 'Task Flows', icon: 'GitBranch' },
+  { id: 'communications', label: 'Communications', icon: 'MessageSquare' },
+  { id: 'models', label: 'Model Analytics', icon: 'Brain' },
+  { id: 'storage', label: 'Storage', icon: 'HardDrive' },
+  { id: 'health', label: 'System Health', icon: 'Activity' },
 ];
 
 export function Dashboard() {
@@ -41,6 +33,8 @@ export function Dashboard() {
     setStats,
     agents,
     setAgents,
+    sidebarOpen,
+    setSidebarOpen,
   } = useDashboardStore();
   const [loading, setLoading] = useState(true);
 
@@ -71,7 +65,6 @@ export function Dashboard() {
 
     ws.onmessage = (event) => {
       const data = JSON.parse(event.data);
-      // Handle different event types
       switch (data.type) {
         case 'agent:update':
           useDashboardStore.getState().updateAgent(data.payload);
@@ -79,7 +72,6 @@ export function Dashboard() {
         case 'task:update':
           useDashboardStore.getState().updateTask(data.payload);
           break;
-        // Add other handlers as needed
       }
     };
 
@@ -89,7 +81,7 @@ export function Dashboard() {
   const renderContent = () => {
     if (loading) {
       return (
-        <div className="flex items-center justify-center h-full">
+        <div className="flex items-center justify-center h-full min-h-[400px]">
           <div className="animate-pulse text-gray-400">Loading dashboard...</div>
         </div>
       );
@@ -130,7 +122,7 @@ export function Dashboard() {
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex h-screen lg:h-screen overflow-hidden">
       {/* Sidebar */}
       <Sidebar 
         tabs={tabs} 
@@ -139,29 +131,39 @@ export function Dashboard() {
       />
 
       {/* Main Content */}
-      <main className="flex-1 overflow-auto bg-gray-950">
+      <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="border-b border-gray-800 bg-gray-900/50 backdrop-blur px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl font-semibold text-white">
-                Agent Control Center
-              </h1>
-              <p className="text-sm text-gray-400">
-                Multi-Agent Dropshipping System
-              </p>
+        <header className="sticky top-0 z-30 border-b border-gray-800 bg-gray-900/95 backdrop-blute px-4 py-3 lg:px-6 lg:py-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              {/* Mobile Menu Toggle */}
+              <button
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                className="lg:hidden p-2 rounded-lg hover:bg-gray-800 text-gray-400"
+              >
+                {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              </button>
+              
+              <div>
+                <h1 className="text-lg lg:text-xl font-semibold text-white">
+                  Agent Control Center
+                </h1>
+                <p className="text-xs lg:text-sm text-gray-400 hidden sm:block">
+                  Multi-Agent Dropshipping System
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 lg:gap-4">
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                <span className="text-sm text-gray-400">Live</span>
+                <span className="text-sm text-gray-400 hidden sm:inline">Live</span>
               </div>
             </div>
           </div>
         </header>
 
-        {/* Tab Content */}
-        <div className="p-6">
+        {/* Tab Content - Scrollable */}
+        <div className="flex-1 overflow-auto p-4 lg:p-6">
           {renderContent()}
         </div>
       </main>

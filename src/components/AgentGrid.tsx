@@ -2,7 +2,7 @@
 
 import { clsx } from 'clsx';
 import { formatDistanceToNow } from 'date-fns';
-import { Play, Clock, AlertCircle, MoreVertical } from 'lucide-react';
+import { Play, Clock, AlertCircle, Users } from 'lucide-react';
 import type { Agent } from '@/types';
 
 interface AgentGridProps {
@@ -34,7 +34,7 @@ export function AgentGrid({ agents, onSelectAgent }: AgentGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-3 md:gap-4">
       {agents.map((agent) => {
         const status = statusConfig[agent.status as keyof typeof statusConfig] || statusConfig.idle;
         const StatusIcon = status.icon;
@@ -43,31 +43,31 @@ export function AgentGrid({ agents, onSelectAgent }: AgentGridProps) {
           <button
             key={agent.id}
             onClick={() => onSelectAgent(agent.id)}
-            className="relative flex flex-col p-4 rounded-xl border border-gray-800 bg-gray-900/50 hover:bg-gray-900 hover:border-gray-700 transition-all text-left"
+            className="relative flex flex-col p-3 md:p-4 rounded-lg md:rounded-xl border border-gray-800 bg-gray-900/50 hover:bg-gray-900 hover:border-gray-700 transition-all text-left"
           >
             {/* Header */}
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{agent.emoji}</span>
-                <div>
-                  <h3 className="font-medium text-white">{agent.name}</h3>
-                  <p className="text-xs text-gray-500">{agent.role}</p>
+            <div className="flex items-start justify-between mb-2 md:mb-3">
+              <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                <span className="text-xl md:text-2xl flex-shrink-0">{agent.emoji}</span>
+                <div className="min-w-0">
+                  <h3 className="font-medium text-white truncate">{agent.name}</h3>
+                  <p className="text-xs text-gray-500 truncate">{agent.role}</p>
                 </div>
               </div>
-              <div className={clsx('flex items-center gap-1.5 px-2 py-1 rounded-full text-xs', status.bg, status.color)}>
+              <div className={clsx('flex items-center gap-1 px-2 py-0.5 md:py-1 rounded-full text-xs flex-shrink-0', status.bg, status.color)}>
                 <StatusIcon className="w-3 h-3" />
-                {status.label}
+                <span className="hidden sm:inline">{status.label}</span>
               </div>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="grid grid-cols-2 gap-2 md:gap-3 text-sm">
               <div>
                 <p className="text-gray-500 text-xs">Tasks</p>
                 <p className="text-white font-medium">{agent.totalTasks}</p>
               </div>
               <div>
-                <p className="text-gray-500 text-xs">Model Calls</p>
+                <p className="text-gray-500 text-xs">Calls</p>
                 <p className="text-white font-medium">{agent.totalCalls}</p>
               </div>
               <div>
@@ -76,15 +76,15 @@ export function AgentGrid({ agents, onSelectAgent }: AgentGridProps) {
               </div>
               <div>
                 <p className="text-gray-500 text-xs">Storage</p>
-                <p className="text-white font-medium">{formatStorage(agent.storageSize)}</p>
+                <p className="text-white font-medium text-xs">{formatStorage(agent.storageSize)}</p>
               </div>
             </div>
 
             {/* Footer */}
-            <div className="mt-3 pt-3 border-t border-gray-800 flex items-center justify-between">
-              <p className="text-xs text-gray-500">
+            <div className="mt-2 md:mt-3 pt-2 md:pt-3 border-t border-gray-800 flex items-center justify-between">
+              <p className="text-xs text-gray-500 truncate">
                 {agent.lastActive 
-                  ? `Active ${formatDistanceToNow(new Date(agent.lastActive), { addSuffix: true })}`
+                  ? `${formatDistanceToNow(new Date(agent.lastActive), { addSuffix: true })}`
                   : 'Never active'
                 }
               </p>
@@ -101,6 +101,3 @@ export function AgentGrid({ agents, onSelectAgent }: AgentGridProps) {
     </div>
   );
 }
-
-// Import Users for empty state
-import { Users } from 'lucide-react';
