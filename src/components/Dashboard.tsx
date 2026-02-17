@@ -66,22 +66,10 @@ export function Dashboard() {
   }, []);
 
   useEffect(() => {
-    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const ws = new WebSocket(`${protocol}//${window.location.host}/api/socket`);
-
-    ws.onmessage = (event) => {
-      const data = JSON.parse(event.data);
-      switch (data.type) {
-        case 'agent:update':
-          useDashboardStore.getState().updateAgent(data.payload);
-          break;
-        case 'task:update':
-          useDashboardStore.getState().updateTask(data.payload);
-          break;
-      }
-    };
-
-    return () => ws.close();
+    // WebSocket disabled - no socket server available
+    // Real-time updates use polling instead
+    return;
+    // */
   }, []);
 
   const renderContent = () => {

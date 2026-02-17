@@ -77,7 +77,7 @@ export function TaskFlow() {
     <div className="space-y-4">
       {/* Task List - Mobile Responsive */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:g-4">
-        {tasks.map((task) => {
+        {(tasks || []).map((task) => {
           const agent = agents[task.agentId];
           const stage = getStageInfo(task.stage || task.type);
           const status = statusConfig[task.status as keyof typeof statusConfig] || statusConfig.pending;
