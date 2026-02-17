@@ -11,12 +11,14 @@ import { StoragePanel } from '@/components/StoragePanel';
 import { SystemHealth } from '@/components/SystemHealth';
 import { StatsBar } from '@/components/StatsBar';
 import { Sidebar } from '@/components/Sidebar';
-import { Menu, X, LayoutDashboard, Users, GitBranch, MessageSquare, Brain, HardDrive, Activity } from 'lucide-react';
+import { OutputPanel } from '@/components/OutputPanel';
+import { Menu, X, LayoutDashboard, Users, GitBranch, MessageSquare, Brain, HardDrive, Activity, FileOutput } from 'lucide-react';
 
 const tabs = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard },
   { id: 'agents', label: 'Agents', icon: Users },
   { id: 'workflows', label: 'Task Flows', icon: GitBranch },
+  { id: 'outputs', label: 'Outputs', icon: FileOutput },
   { id: 'communications', label: 'Communications', icon: MessageSquare },
   { id: 'models', label: 'Model Analytics', icon: Brain },
   { id: 'storage', label: 'Storage', icon: HardDrive },
@@ -136,6 +138,8 @@ export function Dashboard() {
         );
       case 'workflows':
         return <TaskFlow />;
+      case 'outputs':
+        return <OutputPanel />;
       case 'communications':
         return <CommunicationMonitor />;
       case 'models':
