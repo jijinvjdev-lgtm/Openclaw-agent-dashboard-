@@ -32,7 +32,7 @@ export function TaskFlow() {
     async function loadData() {
       try {
         // Load tasks
-        const tasksRes = await fetch('/api/tasks?limit=50');
+        const tasksRes = await fetch(`/api/tasks?limit=50&t=${Date.now()}`);
         if (tasksRes.ok) {
           const tasksData = await tasksRes.json();
           setTasks(tasksData);
