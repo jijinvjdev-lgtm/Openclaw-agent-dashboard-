@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import prisma from '@/lib/db';
 
 // GET /api/stats - Get dashboard statistics
+// Fixed: ensure all agents are counted
 export async function GET() {
   try {
     // Test connection first
