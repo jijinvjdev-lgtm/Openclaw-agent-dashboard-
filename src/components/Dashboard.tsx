@@ -63,6 +63,13 @@ export function Dashboard() {
 
   useEffect(() => {
     loadData();
+    
+    // Auto-refresh every 10 seconds
+    const interval = setInterval(() => {
+      loadData();
+    }, 10000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
