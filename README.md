@@ -2,6 +2,8 @@
 
 Real-time monitoring dashboard for multi-agent dropshipping system.
 
+<!-- Trigger rebuild -->
+
 ## Quick Start
 
 ```bash
