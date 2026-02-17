@@ -94,8 +94,20 @@ export function AgentProfile({ agentId, onBack }: AgentProfileProps) {
     return <div className="p-8 text-gray-400">Agent not found</div>;
   }
 
-  const skills = Array.isArray(agent.skills) ? agent.skills : [];
-  const authorities = Array.isArray(agent.authorities) ? agent.authorities : [];
+  // Parse skills and authorities from JSON strings or arrays
+  const parseJsonField = (field: any) => {
+    if (Array.isArray(field)) return field;
+    if (typeof field === 'string') {
+      try {
+        return JSON.parse(field);
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  };
+  const skills = parseJsonField(agent.skills);
+  const authorities = parseJsonField(agent.authorities);
 
   return (
     <div className="space-y-6">
