@@ -33,6 +33,7 @@ export function AgentProfile({ agentId, onBack }: AgentProfileProps) {
   const [loading, setLoading] = useState(true);
   const [editingPrompt, setEditingPrompt] = useState(false);
   const [prompt, setPrompt] = useState('');
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   useEffect(() => {
     async function loadAgent() {
@@ -217,7 +218,11 @@ export function AgentProfile({ agentId, onBack }: AgentProfileProps) {
             <h3 className="font-medium text-white mb-3">Task History</h3>
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {tasks.map((task) => (
-                <div key={task.id} className="flex items-center justify-between p-2 rounded-lg bg-gray-800/50">
+                <button
+                  key={task.id}
+                  onClick={() => setSelectedTask(task)}
+                  className="w-full flex items-center justify-between p-2 rounded-lg bg-gray-800/50 hover:bg-gray-800 transition-colors text-left"
+                >
                   <div className="flex items-center gap-3">
                     <span className={`w-2 h-2 rounded-full ${
                       task.status === 'completed' ? 'bg-green-500' :
@@ -229,7 +234,7 @@ export function AgentProfile({ agentId, onBack }: AgentProfileProps) {
                   <span className="text-xs text-gray-500">
                     {task.completedAt ? formatDistanceToNow(new Date(task.completedAt), { addSuffix: true }) : 'Pending'}
                   </span>
-                </div>
+                </button>
               ))}
               {tasks.length === 0 && <p className="text-gray-500 text-sm">No tasks yet</p>}
             </div>
@@ -318,6 +323,86 @@ export function AgentProfile({ agentId, onBack }: AgentProfileProps) {
           </div>
         </div>
       </div>
+
+      {/* Task Detail Modal */}
+      {selectedTask && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          onClick={() => setSelectedTask(null)}
+        >
+          <div 
+            className="bg-gray-900 rounded-xl border border-gray-700 p-4 md:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">📋</span>
+                <div>
+                  <h3 className="text-lg font-semibold text-white">{selectedTask.type}</h3>
+                  <p className="text-sm text-gray-400">Task Details</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedTask(null)}
+                className="p-1 rounded hover:bg-gray-800 text-gray-400"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-gray-500 uppercase">Status</label>
+                <p className={`text-sm ${
+                  selectedTask.status === 'completed' ? 'text-green-400' :
+                  selectedTask.status === 'running' ? 'text-amber-400' :
+                  selectedTask.status === 'failed' ? 'text-red-400' : 'text-gray-400'
+                }`}>
+                  {selectedTask.status}
+                </p>
+              </div>
+              
+              <div>
+                <label className="text-xs text-gray-500 uppercase">Stage</label>
+                <p className="text-sm text-white">{selectedTask.stage || '-'}</p>
+              </div>
+              
+              <div>
+                <label className="text-xs text-gray-500 uppercase">Product ID</label>
+                <p className="text-sm text-white">{selectedTask.productId || '-'}</p>
+              </div>
+              
+              <div>
+                <label className="text-xs text-gray-500 uppercase">Input</label>
+                <p className="text-sm text-gray-300">{selectedTask.inputSummary || 'No input'}</p>
+              </div>
+              
+              <div>
+                <label className="text-xs text-gray-500 uppercase">Output</label>
+                <p className="text-sm text-gray-300">{selectedTask.outputSummary || 'Pending...'}</p>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="text-xs text-gray-500 uppercase">Created</label>
+                  <p className="text-sm text-white">{format(new Date(selectedTask.createdAt), 'PPp')}</p>
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 uppercase">Started</label>
+                  <p className="text-sm text-white">{selectedTask.startedAt ? format(new Date(selectedTask.startedAt), 'PPp') : '-'}</p>
+                </div>
+              </div>
+              
+              {selectedTask.completedAt && (
+                <div>
+                  <label className="text-xs text-gray-500 uppercase">Completed</label>
+                  <p className="text-sm text-white">{format(new Date(selectedTask.completedAt), 'PPp')}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
