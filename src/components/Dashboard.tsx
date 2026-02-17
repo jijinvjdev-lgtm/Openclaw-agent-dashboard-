@@ -37,10 +37,12 @@ export function Dashboard() {
     setSidebarOpen,
   } = useDashboardStore();
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadInitialData() {
       try {
+        setError(null);
         const [statsRes, agentsRes] = await Promise.all([
           fetch('/api/stats'),
           fetch('/api/agents'),
@@ -48,8 +50,13 @@ export function Dashboard() {
         
         if (statsRes.ok) setStats(await statsRes.json());
         if (agentsRes.ok) setAgents(await agentsRes.json());
-      } catch (error) {
-        console.error('Failed to load initial data:', error);
+        
+        if (!statsRes.ok || !agentsRes.ok) {
+          setError('Failed to connect to database. Please check DATABASE_URL.');
+        }
+      } catch (err) {
+        console.error('Failed to load initial data:', err);
+        setError('Unable to connect to server. Please check if the API is running.');
       } finally {
         setLoading(false);
       }
@@ -83,6 +90,17 @@ export function Dashboard() {
       return (
         <div className="flex items-center justify-center h-full min-h-[400px]">
           <div className="animate-pulse text-gray-400">Loading dashboard...</div>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="flex flex-col items-center justify-center h-full min-h-[400px] text-center px-4">
+          <div className="p-4 rounded-lg bg-red-900/20 border border-red-800 max-w-md">
+            <p className="text-red-400 font-medium mb-2">Connection Error</p>
+            <p className="text-gray-400 text-sm">{error}</p>
+          </div>
         </div>
       );
     }

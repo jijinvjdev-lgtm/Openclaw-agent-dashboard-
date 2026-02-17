@@ -28,16 +28,6 @@ interface SidebarProps {
   onTabChange: (tab: string) => void;
 }
 
-const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  LayoutDashboard,
-  Users,
-  GitBranch,
-  MessageSquare,
-  Brain,
-  HardDrive,
-  Activity,
-};
-
 export function Sidebar({ tabs, activeTab, onTabChange }: SidebarProps) {
   const { sidebarOpen, setSidebarOpen } = useDashboardStore();
 
@@ -81,7 +71,9 @@ export function Sidebar({ tabs, activeTab, onTabChange }: SidebarProps) {
                 key={tab.id}
                 onClick={() => {
                   onTabChange(tab.id);
-                  setSidebarOpen(false);
+                  if (window.innerWidth < 1024) {
+                    setSidebarOpen(false);
+                  }
                 }}
                 className={clsx(
                   'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all',
@@ -111,6 +103,16 @@ export function Sidebar({ tabs, activeTab, onTabChange }: SidebarProps) {
           )}
         </button>
       </aside>
+
+      {/* Mobile Toggle Button - Always visible on mobile when sidebar closed */}
+      {!sidebarOpen && (
+        <button
+          onClick={() => setSidebarOpen(true)}
+          className="fixed top-4 left-4 z-30 lg:hidden p-2 rounded-lg bg-gray-800 text-gray-300 hover:bg-gray-700"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+      )}
     </>
   );
 }
