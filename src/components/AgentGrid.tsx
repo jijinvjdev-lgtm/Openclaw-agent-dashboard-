@@ -22,15 +22,19 @@ function formatStorage(bytes: number): string {
   return `${bytes} B`;
 }
 
-// Parse JSON string or array
+// Parse JSON string or array - defensive
 function parseJsonField(field: any): string[] {
-  if (Array.isArray(field)) return field;
-  if (typeof field === 'string') {
-    try {
-      return JSON.parse(field);
-    } catch {
+  try {
+    if (Array.isArray(field)) return field;
+    if (typeof field === 'string') {
+      const parsed = JSON.parse(field);
+      return Array.isArray(parsed) ? parsed : [];
+    }
+    if (typeof field === 'object' && field !== null) {
       return [];
     }
+  } catch (e) {
+    console.warn('parseJsonField error:', e);
   }
   return [];
 }
@@ -94,20 +98,23 @@ export function AgentGrid({ agents, onSelectAgent }: AgentGridProps) {
             </div>
 
             {/* Skills */}
-            {parseJsonField(agent.skills).length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-1">
-                {parseJsonField(agent.skills).slice(0, 3).map((skill, i) => (
-                  <span key={i} className="px-1.5 py-0.5 rounded text-[10px] bg-violet-600/20 text-violet-300">
-                    {skill}
-                  </span>
-                ))}
-                {parseJsonField(agent.skills).length > 3 && (
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-gray-700 text-gray-400">
-                    +{parseJsonField(agent.skills).length - 3}
-                  </span>
-                )}
-              </div>
-            )}
+            {(() => {
+              const agentSkills = parseJsonField(agent.skills);
+              return agentSkills.length > 0 ? (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {agentSkills.slice(0, 3).map((skill, i) => (
+                    <span key={i} className="px-1.5 py-0.5 rounded text-[10px] bg-violet-600/20 text-violet-300">
+                      {skill}
+                    </span>
+                  ))}
+                  {agentSkills.length > 3 && (
+                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-gray-700 text-gray-400">
+                      +{agentSkills.length - 3}
+                    </span>
+                  )}
+                </div>
+              ) : null;
+            })()}
 
             {/* Footer */}
             <div className="mt-2 md:mt-3 pt-2 md:pt-3 border-t border-gray-800 flex items-center justify-between">
