@@ -22,6 +22,19 @@ function formatStorage(bytes: number): string {
   return `${bytes} B`;
 }
 
+// Parse JSON string or array
+function parseJsonField(field: any): string[] {
+  if (Array.isArray(field)) return field;
+  if (typeof field === 'string') {
+    try {
+      return JSON.parse(field);
+    } catch {
+      return [];
+    }
+  }
+  return [];
+}
+
 export function AgentGrid({ agents, onSelectAgent }: AgentGridProps) {
   if (agents.length === 0) {
     return (
@@ -79,6 +92,22 @@ export function AgentGrid({ agents, onSelectAgent }: AgentGridProps) {
                 <p className="text-white font-medium text-xs">{formatStorage(agent.storageSize)}</p>
               </div>
             </div>
+
+            {/* Skills */}
+            {parseJsonField(agent.skills).length > 0 && (
+              <div className="mt-2 flex flex-wrap gap-1">
+                {parseJsonField(agent.skills).slice(0, 3).map((skill, i) => (
+                  <span key={i} className="px-1.5 py-0.5 rounded text-[10px] bg-violet-600/20 text-violet-300">
+                    {skill}
+                  </span>
+                ))}
+                {parseJsonField(agent.skills).length > 3 && (
+                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-gray-700 text-gray-400">
+                    +{parseJsonField(agent.skills).length - 3}
+                  </span>
+                )}
+              </div>
+            )}
 
             {/* Footer */}
             <div className="mt-2 md:mt-3 pt-2 md:pt-3 border-t border-gray-800 flex items-center justify-between">
