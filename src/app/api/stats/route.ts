@@ -71,6 +71,11 @@ export async function GET() {
       averageLatency,
       gatewayStatus: gatewayHealth?.status || 'healthy',
       uptime,
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, must-revalidate',
+        'Pragma': 'no-cache',
+      },
     });
   } catch (error) {
     console.error('[API] GET /stats error:', error);
