@@ -73,7 +73,7 @@ export function Sidebar({ tabs, activeTab, onTabChange }: SidebarProps) {
         {/* Navigation */}
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           {tabs.map((tab) => {
-            const Icon = iconMap[tab.icon.name] || LayoutDashboard;
+            const Icon = tab.icon;
             const isActive = activeTab === tab.id;
 
             return (

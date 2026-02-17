@@ -11,16 +11,16 @@ import { StoragePanel } from '@/components/StoragePanel';
 import { SystemHealth } from '@/components/SystemHealth';
 import { StatsBar } from '@/components/StatsBar';
 import { Sidebar } from '@/components/Sidebar';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, LayoutDashboard, Users, GitBranch, MessageSquare, Brain, HardDrive, Activity } from 'lucide-react';
 
 const tabs = [
-  { id: 'overview', label: 'Overview', icon: 'LayoutDashboard' },
-  { id: 'agents', label: 'Agents', icon: 'Users' },
-  { id: 'workflows', label: 'Task Flows', icon: 'GitBranch' },
-  { id: 'communications', label: 'Communications', icon: 'MessageSquare' },
-  { id: 'models', label: 'Model Analytics', icon: 'Brain' },
-  { id: 'storage', label: 'Storage', icon: 'HardDrive' },
-  { id: 'health', label: 'System Health', icon: 'Activity' },
+  { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+  { id: 'agents', label: 'Agents', icon: Users },
+  { id: 'workflows', label: 'Task Flows', icon: GitBranch },
+  { id: 'communications', label: 'Communications', icon: MessageSquare },
+  { id: 'models', label: 'Model Analytics', icon: Brain },
+  { id: 'storage', label: 'Storage', icon: HardDrive },
+  { id: 'health', label: 'System Health', icon: Activity },
 ];
 
 export function Dashboard() {
