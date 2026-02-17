@@ -19,6 +19,7 @@ export function CommunicationMonitor({}: CommunicationMonitorProps) {
     status: '',
   });
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedComm, setSelectedComm] = useState<Communication | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -122,9 +123,10 @@ export function CommunicationMonitor({}: CommunicationMonitorProps) {
       ) : (
         <div className="space-y-2">
           {filteredComms.map((comm) => (
-            <div
+            <button
               key={comm.id}
-              className="p-4 rounded-xl border border-gray-800 bg-gray-900/50 hover:bg-gray-900 transition-colors"
+              onClick={() => setSelectedComm(comm)}
+              className="w-full p-4 rounded-xl border border-gray-800 bg-gray-900/50 hover:bg-gray-900 transition-colors text-left"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-3">
@@ -161,8 +163,74 @@ export function CommunicationMonitor({}: CommunicationMonitorProps) {
                   Task: {comm.taskId}
                 </div>
               )}
-            </div>
+            </button>
           ))}
+        </div>
+      )}
+
+      {/* Message Detail Modal */}
+      {selectedComm && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50"
+          onClick={() => setSelectedComm(null)}
+        >
+          <div 
+            className="bg-gray-900 rounded-xl border border-gray-700 p-4 md:p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{selectedComm.fromAgent?.emoji}</span>
+                <div>
+                  <h3 className="text-lg font-semibold text-white">Communication Details</h3>
+                  <p className="text-sm text-gray-400">From: {getAgentName(selectedComm.fromAgentId)}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => setSelectedComm(null)}
+                className="p-1 rounded hover:bg-gray-800 text-gray-400"
+              >
+                ✕
+              </button>
+            </div>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="text-xs text-gray-500 uppercase">From</label>
+                <p className="text-sm text-white">{getAgentName(selectedComm.fromAgentId)}</p>
+              </div>
+              
+              <div>
+                <label className="text-xs text-gray-500 uppercase">To</label>
+                <p className="text-sm text-white">{getAgentName(selectedComm.toAgentId)}</p>
+              </div>
+              
+              <div>
+                <label className="text-xs text-gray-500 uppercase">Status</label>
+                <p className={`text-sm ${
+                  selectedComm.status === 'delivered' ? 'text-green-400' :
+                  selectedComm.status === 'failed' ? 'text-red-400' : 'text-gray-400'
+                }`}>{selectedComm.status}</p>
+              </div>
+              
+              <div>
+                <label className="text-xs text-gray-500 uppercase">Message</label>
+                <p className="text-sm text-gray-300 whitespace-pre-wrap">{selectedComm.message}</p>
+              </div>
+              
+              {selectedComm.taskId && (
+                <div>
+                  <label className="text-xs text-gray-500 uppercase">Task ID</label>
+                  <p className="text-sm text-white font-mono">{selectedComm.taskId}</p>
+                </div>
+              )}
+              
+              <div>
+                <label className="text-xs text-gray-500 uppercase">Timestamp</label>
+                <p className="text-sm text-white">{format(new Date(selectedComm.timestamp), 'PPpp')}</p>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
